@@ -1,4 +1,5 @@
 site_name: "Understand Container"
+repo_url: https://github.com/binchenX/understand_container
 
 nav:
   - OCI Specification: "ch1.md"
@@ -9,3 +10,6 @@ nav:
   - Root & Users: "ch6.md"
   - Network: "ch7.md"
   - CNI: "ch8.md"
+
+theme:
+  name: material

@@ -10,7 +10,7 @@ OCI has two specs, an [Image spec](https://github.com/opencontainers/image-spec)
 
 And, if a diagram suits your taste better, here is what they cover and how they interact.
 
-```ditaa {cmd=true args=["-E"]}
+```
       Image Spec              Runtime Spec
                  |
 config           | runtime config
@@ -32,7 +32,7 @@ Image specification defines the archive format of OCI container images, which is
 At the top level, a container image is just a tarball, and after being extracted, it has the `layout` as below.
 
 
-```ditaa {cmd=true args=["-E"]}
+```
 ├── blobs
 │   └── sha256
 │       ├── 4297f0*      (image.manifest)
@@ -51,7 +51,7 @@ The `manifest` contains primarily the `config` and the `layers`.
 
 Put that into a diagram, roughly this:
 
-```ditaa {cmd=true args=["-E"]}
+```
 index.json -> manifest ->Config
                 |           | ref
                 |           |
@@ -91,7 +91,7 @@ A container has a lifecycle, at its essence, as you can imagine, it can be model
 
 You can throw in a few other actions and states, such as `pause` and `paused`, but those are the fundamental ones.
 
-```ditaa {cmd=true args=["-E"]}
+```
                                +--------+       +----------+
                                +prestart|       |poststart |
                                | hook   |       | hook     |
@@ -138,14 +138,14 @@ This is the place you can hook up into the container lifecycle and do things suc
 A whole lot of configurations for Linux platform is dedicated to the Namespace configuration. Actually, namespaces are the foundations of container technology. Or put it another way, there is will be no container without namespaces. Linux provides seven type of namespaces and they are all supported by the OCI runtime specification:
 
 
-| Namespace     | Domain / Description                 |
-|---------------|--------------------------------------|
-| PID           |   Process IDs                        |
-| Mount         |   Mount points                       |
-| Network       |   Network devices, stacks, ports, etc|
-| User          |   User and group IDs                 |
-| IPC           |   System V IPC, POSIX message queues |
-| UTS           |   Hostname and NIS domain name       |
+| Namespace | Domain / Description                |
+| --------- | ----------------------------------- |
+| PID       | Process IDs                         |
+| Mount     | Mount points                        |
+| Network   | Network devices, stacks, ports, etc |
+| User      | User and group IDs                  |
+| IPC       | System V IPC, POSIX message queues  |
+| UTS       | Hostname and NIS domain name        |
 
  - Annotations
 In addition to what and how the container should be run. Annotations allow you to label the containers. The ability to label and select the container base on some properties is the basic requirement for a container orchestration platform.
@@ -158,7 +158,7 @@ After you get the containers, you can run `process` inside of that container, wi
 
 Here is the relationship between the various concept, `Image`, `Container` and `Process` and it is vitally important to get them right.
 
-```ditaa {cmd=true args=["-E"]}
+```
         Images               Container       Processes
                  +                      +
                  |                      |
@@ -181,7 +181,7 @@ Here is the relationship between the various concept, `Image`, `Container` and `
 
 Docker makes container an industry trend and probably there are lots of people considering docker *is* container and container *is* docker. Docker definitely deserves the credit here. But from the technical point of view, docker is the most widely used container implementation. The architecture of the docker implementation evolves very quick from version to version. As of the time of writing, it looks like below.
 
-```ditaa {cmd=true args=["-E"]}
+```
                        +---------------------+
                        |                     |
                        |  dockerInc/docker   |
@@ -224,7 +224,7 @@ That is the job of `container orchestration` system. And Kubernetes is one of th
 
 Following diagram illustrate how the Kubernetes interact with the container runtime.
 
-```ditaa {cmd=true args=["-E"]}
+```
 
       +----------------+---------------------------------+
       |                |---------------+                 |
