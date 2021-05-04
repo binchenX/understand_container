@@ -1,0 +1,648 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.3">
+    
+    
+      
+        <title>Namespaces - Understand Container</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e35208c4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ef6f36e2.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#namespaces" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Understand Container" class="md-header__button md-logo" aria-label="Understand Container" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Understand Container
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Namespaces
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        
+<a href="https://github.com/binchenX/understand_container/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Understand Container" class="md-nav__button md-logo" aria-label="Understand Container" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Understand Container
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/binchenX/understand_container/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch1/" class="md-nav__link">
+        OCI Specification
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Namespaces
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Namespaces
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#run-container" class="md-nav__link">
+    Run container
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-new-process-inside-a-container" class="md-nav__link">
+    Run new process inside a container
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    Summary
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch3/" class="md-nav__link">
+        Cgroups
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch4/" class="md-nav__link">
+        Capabilities
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch5/" class="md-nav__link">
+        Filesystems
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch6/" class="md-nav__link">
+        Root & Users
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch7/" class="md-nav__link">
+        Network
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ch8/" class="md-nav__link">
+        CNI
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#run-container" class="md-nav__link">
+    Run container
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-new-process-inside-a-container" class="md-nav__link">
+    Run new process inside a container
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    Summary
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/binchenX/understand_container/edit/master/docs/ch2.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="namespaces">Namespaces</h1>
+<p>It's safe to say without namespaces, there would be no container.</p>
+<p>This article will not be the description or overview of namespaces in Linux, which you can find at <a href="http://man7.org/linux/man-pages/man7/namespaces.7.html">here</a> and <a href="https://lwn.net/Articles/531114/">here</a>.</p>
+<p>Instead, we'll get our hands dirty and <em>see</em> what exactly happens to the namespaces when we use the commonly used container commands so that you appreciate the role namespaces is playing in the container technology.</p>
+<p>There are several types of namespaces, such as PID namespaces, mount namespaces. In this article we focus on the change of PID namespaces, other namespaces follow similar rules. We'll use <a href="https://github.com/opencontainers/runc">runc</a> as the container runtime, since it is simple, have a specification, easy to change to experiment stuff and when necessary, I can point you the code. As we have pointed out in previous chapter that docker is using runc as the container runtime and the docker command is quite similar to runc command. So docker users should be able to feel at home we use runc command here.</p>
+<p>If you like, follow <a href="https://github.com/opencontainers/runc/blob/master/README.md">here</a> to install runc and prepare a busybox runtime bundle (or container).</p>
+<p>Let's get started.</p>
+<h2 id="run-container">Run container</h2>
+<pre><code>sudo runc run xyxy12
+</code></pre>
+<p>To detect the newly created processes, we can use tool <code>execsnoop</code>.</p>
+<pre><code>$ git clone https://github.com/brendangregg/perf-tools.git
+$ cd perf-tools
+$ sudo ./execsnoop
+</code></pre>
+<p>After running the xyxy12, we should see something as below. The first column is the PID of the newly created process, which is 10123 and the process is <code>sh</code>.</p>
+<pre><code> 10100  10099 runc start xyxy12
+ 10113  10052 sudo runc run xyxy12
+ 10114  10113 runc run xyxy12
+ 10120  10117 runc init
+ 10123  10121 sh
+</code></pre>
+<p>To get the PID namespaces, we can customize the output format of <code>ps</code> command, as shown below, and the PIDNS is what we want.</p>
+<pre><code>$ sudo ps -p 10123 -o pid,pidns
+  PID      PIDNS
+ 10123 4026532572
+</code></pre>
+<p>We can also use <code>/proc</code> filesystem to find out the namespaces information:</p>
+<pre><code>$ sudo ls -l /proc/10123/ns
+total 0
+lrwxrwxrwx 1 root root 0 Apr 26 17:03 cgroup -&gt; cgroup:[4026531835]
+lrwxrwxrwx 1 root root 0 Apr 26 16:33 ipc -&gt; ipc:[4026532571]
+lrwxrwxrwx 1 root root 0 Apr 26 16:33 mnt -&gt; mnt:[4026532569]
+lrwxrwxrwx 1 root root 0 Apr 26 16:33 net -&gt; net:[4026532574]
+lrwxrwxrwx 1 root root 0 Apr 26 16:33 pid -&gt; pid:[4026532572]
+lrwxrwxrwx 1 root root 0 Apr 26 16:33 user -&gt; user:[4026531837]
+lrwxrwxrwx 1 root root 0 Apr 26 16:33 uts -&gt; uts:[4026532570]
+</code></pre>
+<p>We have a few files here, each one represents a type of namespaces. PID is the PID namespaces, mnt the mount namespaces. Those files are symlinks pointing to the "real" namespaces the process belongs to, thinking it as a pointer pointing to some namespaces object, which is denoted by <code>inode</code> number and it is unique in the host system. If the namespaces symlink of two different process point to same <code>inode</code>, they belong to the same namespaces. By default, if no new namespaces are created, they all belong the same "root" or "default" namespace.</p>
+<p>You can also find out the namespaces of <code>sh</code> inside of the container but need to use the PID in the container namespaces, that is <code>1</code> for the <code>10123</code>. It isthe some process but different PID in a different namespaces, that is all PID namespaces are about. Note that it is mandatory that the <code>/proc</code> must be setup properly during container creation.</p>
+<pre><code># inside the container
+# ls -l /proc/1/ns
+total 0
+lrwxrwxrwx    1 root     root    0 Apr 26 06:34 cgroup -&gt; cgroup:[4026531835]
+lrwxrwxrwx    1 root     root    0 Apr 26 06:34 ipc -&gt; ipc:[4026532571]
+lrwxrwxrwx    1 root     root    0 Apr 26 06:34 mnt -&gt; mnt:[4026532569]
+lrwxrwxrwx    1 root     root    0 Apr 26 06:34 net -&gt; net:[4026532574]
+lrwxrwxrwx    1 root     root    0 Apr 26 06:34 pid -&gt; pid:[4026532572]
+lrwxrwxrwx    1 root     root    0 Apr 26 06:34 user -&gt; user:[4026531837]
+lrwxrwxrwx    1 root     root    0 Apr 26 06:34 uts -&gt; uts:[4026532570]
+</code></pre>
+<p>Next, we want to check what processes are in the newly created PID namespaces. Unfortunately, there isn't a place we can find out this information directly but need to go over all the <code>/proc/&lt;pid&gt;/ns</code> files and aggregate all the PIDs belongs the same namespaces. Luckily, tool <a href="https://github.com/mhausenblas/cinf">cinf</a>, does exactly that.</p>
+<pre><code>$ sudo cinf -namespace 4026532572
+PID   PPID  NAME CMD  CGROUPS
+10123 10114 sh   sh  14:name=dsystemd:/
+                     13:name=systemd:/user/1000.user/c2.session/xyxy12
+                     12:pids:/xyxy12
+                     11:hugetlb:/user/1000.user/c2.session/xyxy12
+                     10:net_prio:/user/1000.user/c2.session/xyxy12
+                     9:perf_event:/user/1000.user/c2.session/xyxy12
+                     8:net_cls:/user/1000.user/c2.session/xyxy12
+                     7:freezer:/user/1000.user/c2.session/xyxy12
+                     6:devices:/user/1000.user/c2.session/xyxy12
+                     5:memory:/user/1000.user/c2.session/xyxy12
+                     4:blkio:/user/1000.user/c2.session/xyxy12
+                     3:cpuacct:/user/1000.user/c2.session/xyxy12
+                     2:cpu:/user/1000.user/c2.session/xyxy12
+                     1:cpuset:/xyxy12
+</code></pre>
+<p>There is only one process at the moment, and that is the "init" program of the container we started, the <code>sh</code> program. Ignore the <code>cgroup</code> at the moment, we'll talk about it in the late chapter.</p>
+<p>Well, we see that when a new container is created, a bunch of new namespaces will be created and the "init" process of the container will be put into those namespaces. Effectively the process is running in a container, and that mean different things for different namespaces. For PID namespaces, it means all the processes running in the container can see only the processes <em>in</em> the same processes namespaces, "pid:[4026532572]", or equivalently "pid:xyxy12". The <code>sh</code> process is considered as PID 1 inside of the container, but it is 10123 in the host, and that's PID namespaces in play here. As you can see, we actually can use the container and namespaces interchangeably in this context.</p>
+<p>We are clear, hopefully, about what does <code>docker/runc run</code> do regarding the namespaces. How about <code>docker/runc exec</code>?</p>
+<h2 id="run-new-process-inside-a-container">Run new process inside a container</h2>
+<p>Do this:</p>
+<pre><code>sudo runc exec xyxy12 /bin/top -b
+</code></pre>
+<p>From <code>execsnoop</code>, we can see the pids - in the runtime namespaces.</p>
+<pre><code> 10702  10701 runc exec xyxy12 /bin/top -b
+ 10708  10704 runc init
+ 10710  10709 /bin/top -b
+</code></pre>
+<p>We can use <code>runc ps</code>, which will the processes running in a container, and the PIDs listed are in the runtime namespaces, which is what we want. (One interesting difference is execsnoop say the parent of 10710 is 10709, but runc ps says it is 10702, which is the runc exec command, seems makes more sense.)</p>
+<pre><code>$ sudo runc ps xyxy12
+UID        PID  PPID  C STIME TTY          TIME CMD
+root     10123 10114  0 16:29 pts/0    00:00:00 sh
+root     10710 10702  0 16:38 pts/1    00:00:00 /bin/top -b
+</code></pre>
+<p>Unfortunately, the <code>runc ps</code> does not fully support the <code>-o pid,pidns</code> option. So we'll again use the <code>cinf</code> to find out the namespaces of the new running process (<code>top -b</code>)</p>
+<pre><code>$ sudo cinf -pid 10710
+
+ NAMESPACE   TYPE
+
+ 4026532569  mnt
+ 4026532570  uts
+ 4026532571  ipc
+ 4026532572  pid
+ 4026532574  net
+ 4026531837  user
+
+</code></pre>
+<p>We can see that no new namespaces were created. The <code>/bin/top -b</code> command <em>joined</em> the namespaces of "init" process - the first process we run in the container.</p>
+<p>Let's list again the processes inside of the PID namespaces <code>4026532572</code>. Now, there are two: 10123 and 10710.</p>
+<pre><code>$ sudo cinf -namespace 4026532572
+PID   PPID  NAME  CMD  CGROUPS
+10123 10114 sh    sh   14:name=dsystemd:/
+                       13:name=systemd:/user/1000.user/c2.session/xyxy12
+                       12:pids:/xyxy12
+                       11:hugetlb:/user/1000.user/c2.session/xyxy12
+                       10:net_prio:/user/1000.user/c2.session/xyxy12
+                       9:perf_event:/user/1000.user/c2.session/xyxy12
+                       8:net_cls:/user/1000.user/c2.session/xyxy12
+                       7:freezer:/user/1000.user/c2.session/xyxy12
+                       6:devices:/user/1000.user/c2.session/xyxy12
+                       5:memory:/user/1000.user/c2.session/xyxy12
+                       4:blkio:/user/1000.user/c2.session/xyxy12
+                       3:cpuacct:/user/1000.user/c2.session/xyxy12
+                       2:cpu:/user/1000.user/c2.session/xyxy12
+                       1:cpuset:/xyxy12
+10710 10702 top /bin/top -b 14:name=dsystemd:/
+                         13:name=systemd:/user/1000.user/c2.session/xyxy12
+                         12:pids:/xyxy12
+                         11:hugetlb:/user/1000.user/c2.session/xyxy12
+                         10:net_prio:/user/1000.user/c2.session/xyxy12
+                         9:perf_event:/user/1000.user/c2.session/xyxy12
+                         8:net_cls:/user/1000.user/c2.session/xyxy12
+                         7:freezer:/user/1000.user/c2.session/xyxy12
+                         6:devices:/user/1000.user/c2.session/xyxy12
+                         5:memory:/user/1000.user/c2.session/xyxy12
+                         4:blkio:/user/1000.user/c2.session/xyxy12
+                         3:cpuacct:/user/1000.user/c2.session/xyxy12
+                         2:cpu:/user/1000.user/c2.session/xyxy12
+                         1:cpuset:/xyxy12
+</code></pre>
+<p>If we run <code>ps</code> inside of the container, we'll also see those processes (plus the <code>ps</code> itself). Their Pids are 1 and 9, instead of 10123 and 10710. Again, its PID namespaces in play here.</p>
+<pre><code>/ # ps -ef
+PID   USER     TIME  COMMAND
+    1 root      0:00 sh
+    9 root      0:00 /bin/top -b
+   18 root      0:00 ps -ef
+
+</code></pre>
+<p>Now we know that <code>docker/runc exec</code> actually starts the new process inside of the namespaces the container already created.</p>
+<h2 id="summary">Summary</h2>
+<p>When running a container, new namespaces will be created and the <code>init</code> process will be started in that namespaces; when running a new process in a container, it will join the namespaces that are created when the container is created.</p>
+<p>That's the "normal" case, instead of letting the container creating a namespaces for the container, you can also specify a <a href="https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#namespaces">path</a> that you want the container or processes to run in.</p>
+<p>Now you understand how exactly PID namespaces are used in the container. If you can take an extra step to figure out what is the mount namespaces and how it is used in container, then you understand the core of application containerization.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../ch1/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              OCI Specification
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../ch3/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Cgroups
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../assets/javascripts/workers/search.fe42c31b.min.js", "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.4ea5477f.min.js"></script>
+      
+    
+  </body>
+</html>
