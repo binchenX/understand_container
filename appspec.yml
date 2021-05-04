@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+hooks:
+  ApplicationStop:
+    - location: cicd/stop.sh
+      timeout: 30
+      runas: root
+  ApplicationStart:
+    - location: cicd/start.sh
+      timeout: 30
+      runas: root
+  ValidateService:
+    - location: cicd/validate.sh
+      timeout: 30
+      runas: root
+
+
