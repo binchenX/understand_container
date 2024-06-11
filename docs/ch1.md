@@ -1,8 +1,8 @@
 # OCI Specification
 
-OCI(Open Container Initiative) is an industry collaborated effort to define open containers specifications regarding container image format and runtime. The history of how it comes to where it stands today from the initial disagreement is a very interesting story in terms of collaboration and competition in open source world.
+The Open Container Initiative (OCI) is a collaborative industry effort to define open container specifications, including container image format and runtime. The history of its evolution, from initial disagreements to its current state, is a fascinating story of collaboration and competition in the open-source world.
 
-Nowadays, all the main players in the container ecosystem follow the OCI container specification. For anyone interested to know how container actually works, it is a great technical source you will not want to miss.
+Today, all the major players in the container ecosystem adhere to the OCI container specification. For those interested in understanding how containers actually work, it is an invaluable technical resource that should not be overlooked.
 
 ## Overview
 
@@ -27,7 +27,7 @@ An OCI Image will be downloaded from somewhere (thinking docker hub) and then it
 
 ## Image Spec
 
-Image specification defines the archive format of OCI container images, which is consist of a manifest, an image index, a set of filesystem layers, and a configuration. The goal of this specification is to enable the creation of interoperable tools for building, transporting, and preparing a container image to run.
+The image specification defines the archive format of OCI container images, which consists of a manifest, an image index, a set of filesystem layers, and a configuration. The goal of this specification is to enable the creation of interoperable tools for building, transporting, and preparing a container image to run.
 
 At the top level, a container image is just a tarball, and after being extracted, it has the `layout` as below.
 
@@ -79,11 +79,11 @@ For layers, the specification essentially defines two things:
 
 ## Runtime Specification
 
-Once the *Image* is unpacked to a runtime bundle on the disk file system, there is something you can run. And then it is the Runtime Specification kick in. The Runtime Specification specifies the configuration, execution environment, and lifecycle of a container.
+Once the *Image* is unpacked into a runtime bundle on the disk file system, it becomes something you can run. At this point, the Runtime Specification comes into play. The Runtime Specification outlines the configuration, execution environment, and lifecycle of a container.
 
-A container's configuration contains metadata necessary to create and run a container. This includes the process to run, environment variables, the resource constraints and sandboxing features to use, etc. Some of the configurations are generic across all platforms including Linux, Windows, Solaris and Virtual Machine specific; but some of them are platform specific, say Linux only.
+A container's configuration contains the metadata necessary to create and run a container. This includes the process to run, environment variables, resource constraints, sandboxing features, and more. Some of these configurations are generic and can be used across all platforms, including Linux, Windows, Solaris, and specific virtual machines. However, some configurations are platform-specific, such as those for Linux only.
 
-The runtime specification also defines the Lifecycle of a container, that is a series of events that happen from when a container is created to when it ceases to exist.
+The Runtime Specification also defines the lifecycle of a container, which is a series of events that occur from the moment a container is created until it ceases to exist.
 
 ### Container Lifecycle
 
@@ -113,11 +113,58 @@ You can throw in a few other actions and states, such as `pause` and `paused`, b
                                +---------+
 ```
 
-The state diagram is conventional but there is one important thing worth mentioning - the `Hooks`. Probably a little surprise to you, container specification don't define how to set up the network and it actually relies on the hooks to set up the network properly, say create the network before container start and delete it after the container is stopped.
+The state diagram is conventional, but there is one important detail worth mentioning - the `Hooks`. Contrary to what you might expect, the container specification does not define how to set up the network. Instead, it relies on technical constructs known as hooks to properly set up the network. For example, a hook might create the network before the container starts and delete it after the container stops.
 
-## Container Configrations
+## Container Configurations
 
-We mentioned before a container's configuration contains the config necessary to create and run a container. And we will look at some of the configs a little bit closer to get a sense of what is container really about, and we'll focus on Linux platform for all the configurations.
+Earlier, we mentioned that a container's configuration contains the necessary settings to create and run a container. Now, we will examine some of these configurations more closely to better understand what a container really is. For the purpose of this discussion, we will focus on configurations specific to the Linux platform.
+
+Here is an example configuration file:
+
+```json
+{
+  "ociVersion": "1.0.1",
+  "process": {
+    "terminal": true,
+    "user": {
+      "uid": 0,
+      "gid": 0
+    },
+    "args": [
+      "sh"
+    ],
+    "env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "TERM=xterm"
+    ],
+    "cwd": "/"
+  },
+  "root": {
+    "path": "rootfs",
+    "readonly": true
+  },
+  "hostname": "container-example",
+  "linux": {
+    "namespaces": [
+      {
+        "type": "pid"
+      },
+      {
+        "type": "network"
+      },
+      {
+        "type": "ipc"
+      },
+      {
+        "type": "uts"
+      },
+      {
+        "type": "mount"
+      }
+    ]
+  }
+}
+```
 
 - Root
 It defines the root file system of the container.
@@ -135,7 +182,7 @@ This is the place you can hook up into the container lifecycle and do things suc
 
 - Linux Namespaces
 
-A whole lot of configurations for Linux platform is dedicated to the Namespace configuration. Actually, namespaces are the foundations of container technology. Or put it another way, there is will be no container without namespaces. Linux provides seven type of namespaces and they are all supported by the OCI runtime specification:
+A significant portion of the configurations for the Linux platform is dedicated to Namespace configuration. In fact, namespaces are the foundation of container technology. Put another way, there would be no containers without namespaces. Linux provides seven types of namespaces, all of which are supported by the OCI runtime specification:
 
 
 | Namespace | Domain / Description                |
@@ -147,8 +194,8 @@ A whole lot of configurations for Linux platform is dedicated to the Namespace c
 | IPC       | System V IPC, POSIX message queues  |
 | UTS       | Hostname and NIS domain name        |
 
- - Annotations
-In addition to what and how the container should be run. Annotations allow you to label the containers. The ability to label and select the container base on some properties is the basic requirement for a container orchestration platform.
+- Annotations
+In addition to defining what and how the container should run, annotations allow you to label the containers. The ability to label and select containers based on certain properties is a fundamental requirement for a container orchestration platform.
 
 ## Image, Container, and Processes
 

@@ -1,14 +1,14 @@
 # CNI
 
-CNI means `Container Network Interface`, originated from coreOs for rkt's network solution, and beat Docker's CNM as being adopted by [k8s](https://kubernetes.io/blog/2016/01/why-kubernetes-doesnt-use-libnetwork/) as the network plugin interface.
+CNI, or `Container Network Interface`, originated from CoreOS as a network solution for rkt, and surpassed Docker's CNM by being adopted by [k8s](https://kubernetes.io/blog/2016/01/why-kubernetes-doesnt-use-libnetwork/) as the network plugin interface.
 
-In this blog we are going to see how to use CNI, to be specific, the bridge plugin, to setup the network for containers spawned by runc and achieve the same result/topology as we did in the last blog using netns as the hook.
+In this blog, we will explore how to use CNI, specifically the bridge plugin, to set up the network for containers spawned by runc, achieving the same result/topology as we did in the last blog using `netns` as the hook.
 
 ## Overview
 
-The caller/user of CNI (eg: you calling from a shell, a container runtime/orchestrator, such as runc or k8s) interact with a plugin using two things: a network configuration file and some environment variables. The configuration files has the [configs of network (or subnet)](https://github.com/containernetworking/cni/blob/master/SPEC.md#network-configuration) the container supposed to connect to; the environment variables include the path regarding where to find the plugin binary and network configuration files, *plus* "add/delete which container to/from which network namespace", which can well be implemented by passing arguments to the plugin (instead of using environment variable). It's not a big issue but looks a little bit "unusual" to use the environment to pass arguments.
+The caller/user of CNI (e.g., a container runtime/orchestrator such as runc or k8s) interacts with a plugin using two things: a network configuration file and some environment variables. The configuration file contains the [configs of the network (or subnet)](https://github.com/containernetworking/cni/blob/master/SPEC.md#network-configuration) the container is supposed to connect to. The environment variables include the path where the plugin binary and network configuration files are located, *plus* "add/delete which container to/from which network namespace". This could be implemented by passing arguments to the plugin (instead of using environment variables). It's not a big issue, but it seems a bit "unusual" to use the environment to pass arguments.
 
-For a more detailed introduction of CNI, see [here](https://www.slideshare.net/weaveworks/introduction-to-the-container-network-interface-cni) and [here](https://github.com/containernetworking/cni/blob/master/SPEC.md).
+For a more detailed introduction to CNI, see [here](https://www.slideshare.net/weaveworks/introduction-to-the-container-network-interface-cni) and [here](https://github.com/containernetworking/cni/blob/master/SPEC.md).
 
 ## Use CNI plugins
 
@@ -66,7 +66,7 @@ $plugin <<EOF
 EOF
 ```
 
-It may be not obvious to a newcomer that we are using two plugins here, [bridge plugin](https://github.com/containernetworking/plugins/tree/master/plugins/main/bridge) and [host-local](https://github.com/containernetworking/plugins/tree/master/plugins/ipam/host-local). The format is to set up a bridge network (as well as veth pair) and the late is to set up allocate and assign ip to the containers (and the bridge gateway), which is called `ipam` (IP Address Management), as you might have noticed in the config key.
+It may not be obvious to a newcomer that we are using two plugins here, the [bridge plugin](https://github.com/containernetworking/plugins/tree/master/plugins/main/bridge) and [host-local](https://github.com/containernetworking/plugins/tree/master/plugins/ipam/host-local). The former is used to set up a bridge network (as well as a veth pair), and the latter is used to allocate and assign IP addresses to the containers (and the bridge gateway). This is referred to as `ipam` (IP Address Management), as you might have noticed in the config key.
 
 The internal working of the bridge plugging is almost the same as the `netns` does and we are not going to repeat it here.
 
@@ -101,9 +101,9 @@ Below is the output, telling you the *ip* and *gateway* of `c1`, among other thi
 }
 ```
 
-You can create another container `c2` and put it into the same network in a similar way, and now we create a subnet with two containers inside. They can talk to each other and call can ping outside IPs, thanks to route setting and IP masquerade. However, the DNS won't work.
+You can create another container `c2` and add it to the same network in a similar way. Now, we have a subnet with two containers inside. They can communicate with each other and can ping outside IPs, thanks to the route setting and IP masquerade. However, DNS won't work.
 
-You can also remove a container from the network, after which the container won't be connected to the bridge anymore.
+You can also remove a container from the network. After doing so, the container won't be connected to the bridge anymore.
 
 ```
 sudo ./runc_cni.sh DEL c1

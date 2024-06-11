@@ -1,14 +1,14 @@
 # Mount namespace & pivot_root
 
-Files in Linux system are organized as a tree. The tree normally starts with a root file system (called `rootfs`) provided by the Linux distribution, and the rootfs will be mounted as "/". Later, optionally additional file systems can be attached to a subdirectory.such as /data, which for example points to an external USB disk.
+Files in a Linux system are organized as a tree. The tree normally starts with a root file system (called `rootfs`) provided by the Linux distribution, and the rootfs is mounted as "/". Later, additional file systems can optionally be attached to a subdirectory, such as /data, which could point to an disk.
 
-`mount(2)` is the system call used to attach a file system or a directory to a node of the root tree. When the system boots up, the init process will do multiple mount call to set up the file system properly, and that is the initial mount table. All the processes have its mount table, but they normally pointing to the same one - the one set up by the init process. However, a process can also have a separate mount table from its parent. It starts with copying the parent one but later any change to it (incurred by `mount` ) will only impact itself. And that's what `mount namespace` means and for. Worth to note that in the same mount namespace, any change to the mount table by one process will be visible to another process. And because of this, when you mount a USB disk on the shell and the files explorer will be able to see the content as well.
+`mount(2)` is the system call used to attach a file system or a directory to a node of the root tree. When the system boots up, the init process performs multiple mount calls to set up the file system properly, creating the initial mount table. All processes have their own mount table, but they normally point to the same one - the one set up by the init process. However, a process can also have a separate mount table from its parent. It starts with a copy of the parent's table, but any subsequent changes to it (incurred by `mount`) will only impact itself. This is what the `mount namespace` is for. It's worth noting that in the same mount namespace, any changes to the mount table by one process will be visible to another process. Because of this, when you mount a USB disk on the shell, the file explorer will be able to see the content as well.
 
 ## Mount Namespace
 
-Normally, the application won't create a separate mount namespace when being started.
+Normally, an application won't create a separate mount namespace when it starts.
 
-For example, there are two mnt namespaces on my host,
+For example, there are two mount namespaces on my host:
 
 ```
 $ sudo cinf | grep mn
@@ -28,22 +28,11 @@ $ ps -ef | grep kdevtmpfs
 root        46     2  0 10:17 ?        00:00:00 [kdevtmpfs]
 ```
 
-All the other processes are in the second mount namespaces created by the `/sbin/init`. And if you check the mount points of two processes in that mnt namespace (by cat /proc/pid/mounts), they are all same.(*)
-
-*Notes: The mount points for chrome are empty despite being in the same namespace. why?
-
-```
-$ ps -ef | grep 10142
-binchen  10142  3692  0 11:42 ?        00:00:02 /opt/google/chrome/chrome
-$ ll /proc/10142/ns/mnt
-lrwxrwxrwx 1 binchen binchen 0 May  7 11:44 /proc/10142/ns/mnt -> mnt:[4026531840]
-$ cat /proc/10142/mounts
-# it shows nothing...
-```
+All the other processes are in the second mount namespace created by `/sbin/init`. If you check the mount points of two processes in that mount namespace (by using `cat /proc/pid/mounts`), they are all the same.
 
 ### Mnt Namespace for Container
 
-Let's start a container and what changes in mnt namespaces,
+Let's start a container and see what changes in the mount namespaces.
 
 ```
 sudo runc run xyxy12
@@ -70,7 +59,7 @@ UID        PID  PPID  C STIME TTY          TIME CMD
 root     11674 11665  0 12:00 pts/0    00:00:00 sh
 ```
 
-And here the dump of the mount info for our new container.
+And here is the dump of the mount info for our new container.
 
 ```
 $ cat /proc/11674/mounts | sort | uniq
@@ -111,7 +100,7 @@ tmpfs /sys/firmware tmpfs ro,relatime 0 0
 tmpfs /sys/fs/cgroup tmpfs ro,nosuid,nodev,noexec,relatime,mode=755 0 0
 ```
 
-Probably the content doesn't interest you too much. We will skip the details of most of those entries here, but one :
+The content might not be of much interest to you. We will skip the details of most of these entries, except for one:
 
 ```
 /dev/disk/by-uuid/22cb3888-325e-4283-a605-d2f60d11bb96 / ext4 ro,relatime,errors=remount-ro,data=ordered 0 0
@@ -157,7 +146,9 @@ The "jail" is done by [pivot_root](http://man7.org/linux/man-pages/man2/pivot_ro
 
 ## chroot
 
-It won't be complete if we wouldn't mention `chroot(2)` when talking about the filesystem for the container. However, it is not mandatory to create a new mnt namespace and use privot_root. Optionally, but less ideally, you can use `chroot(2)`, which will "jail" the calling process (and all its children) into the rootfs the container starts with. Unlike the mount namespace, `chroot` won't change anything to mount, it just changes the process path lookup, interpreting the `/` as the path chroot-ed to; for the difference between `chroot` and `privot_root` see [here](https://lists.linuxcontainers.org/pipermail/lxc-devel/2011-September/002065.html). In short, privot_root is more thorough, and safer.
+It won't be complete if we wouldn't mention `chroot(2)` when talking about the filesystem for the container. However, it is not mandatory to create a new mnt namespace and use privot_root. Optionally, but less ideally, you can use `chroot(2)`, which will "jail" the calling process (and all its children) into the rootfs the container starts with. 
+
+Unlike the mount namespace, `chroot` won't change anything to mount, it just changes the process path lookup, interpreting the `/` as the path chroot-ed to; for the difference between `chroot` and `privot_root` see [here](https://lists.linuxcontainers.org/pipermail/lxc-devel/2011-September/002065.html). In short, privot_root is more thorough, and safer.
 
 To use chroot, if you like, make following changes to your default config.json. In addition to removal of  `type:mount`, we have removed "maskedPaths" and "readonlyPaths" which will require a private mount namespace to work.
 
@@ -193,8 +184,6 @@ index 25a3154..9382207 100644
 -                       "/proc/sysrq-trigger"
                 ]
         }
--}
-\ No newline at end of file
 +}
 ```
 
@@ -214,9 +203,9 @@ if config.NoPivotRoot {
 
 ## Bind Mount
 
-`bind mount` is a type of mount supported by Linux to remount part of the file hierarchy to somewhere else so it can be accessed from both places. It is used to share the host directory with the container.
+`bind mount` is a feature supported by Linux that allows a portion of the file hierarchy to be remounted elsewhere, making it accessible from both locations. This is often used to share a host directory with a container.
 
-Make the following change to the config.json. It tells the container runtime to bind mount a local directory (host_dir, a relative path to the runtime bundle) to a directory (/host_dir, an absolute path in container rootfs) in the container.
+The following change to the `config.json` instructs the container runtime to bind mount a local directory (`host_dir`, a relative path to the runtime bundle) to a directory (`/host_dir`, an absolute path in the container's root file system).
 
 ```
 diff --git a/config.json b/config.json
@@ -251,7 +240,7 @@ For bind mount to work, the host directory must exist before mounting, but not t
 
 ```
 
-start the container with the new config.json, and we can see the content of `host_dir` through `/host` in the container.
+Start the container with the new config.json, and we can see the content of `host_dir` through `/host` in the container.
 
 ```
 / # ls /host/
@@ -376,9 +365,8 @@ remains mounted, the pathname dir refers to the root of the filesystem on the de
 
 ## Docker Volume
 
-Lastly, few words on [volume](https://docs.docker.com/storage/volumes/), which is docker terminology and is not covered by oci runtime spec. Fundamentally, it is still mount, be it bind mount a directory (as we did in the mounting host_dir case) or mount a volume device (as we did in the usb case). We can think volume as a "managed mount service from docker" with handy cli interface.
+Lastly, a few words on [volume](https://docs.docker.com/storage/volumes/), which is a Docker terminology and is not covered by the OCI runtime spec. Fundamentally, it is still a mount, whether it's a bind mount of a directory (as we did in the host_dir mounting case) or a mount of a volume device (as we did in the USB case). We can think of volume as a "managed mount service from Docker" with a handy CLI interface.
 
 ## Summary
 
-We talked how container will create a new mount namespace and jailed the processes inside of the container rootfs, and then we talked about how container use mount and bind mount to access and share the host device and directory. We skim the concept of volume from docker, which is fundamentally a "managed mount".
-
+We discussed how a container creates a new mount namespace and confines the processes inside the container's root file system. We also talked about how a container uses mount and bind mount to access and share the host device and directory. We skimmed over the concept of volume from Docker, which is fundamentally a "managed mount".

@@ -1,6 +1,6 @@
 # Capabilities
 
-[capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html) is used to break the super privileges enjoyed by the root user to fine-grained permissions so that even being a root user you are not able to whatever you want unless been granted corresponding capabilities.
+[Capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html) are used to break down the super privileges enjoyed by the root user into fine-grained permissions. This means that even as a root user, you are not able to do whatever you want unless you have been granted the corresponding capabilities.
 
 ## Prepare rootfs
 
@@ -12,9 +12,9 @@ First, create a docker container with libcap installed,
 sudo docker run -it alpine sh -c 'apk add -U libcap; capsh --print'
 ```
 
-using `docker ps -a` find out the container id of the one we just run, it should be the lastest one.
+Use `docker ps -a` to find out the container ID of the one we just ran; it should be the latest one.
 
-Then export the rootfs to create a runc runtime bundle.
+Then, export the rootfs to create a `runc` runtime bundle.
 
 ```
 mkdir rootfs
@@ -24,7 +24,7 @@ runc spec
 
 ## Capability
 
-To get a sense of what capability is: Using the default `config.json` generated from runc spec, you are not allowed to set the hostname, even being root.
+To understand what capabilities are: Using the default `config.json` generated from `runc spec`, you are not allowed to set the hostname, even as root.
 
 ```
 $ sudo runc run xyxy67
@@ -34,9 +34,9 @@ uid=0(root) gid=0(root)
 hostname: sethostname: Operation not permitted
 ```
 
-That's because setting hostname requires `CAP_SYS_ADMIN` capability, even being root. We can add that capability by adding `CAP_SYS_ADMIN` to `bounding`, `permitted`, `effective` list of the [capabilities attribute](https://github.com/opencontainers/runtime-spec/blob/master/config.md#linux-process) of the init the process.
+That's because setting the hostname requires the `CAP_SYS_ADMIN` capability, even for the root user. We can add this capability by including `CAP_SYS_ADMIN` in the `bounding`, `permitted`, and `effective` lists of the [capabilities attribute](https://github.com/opencontainers/runtime-spec/blob/master/config.md#linux-process) for the init process.
 
-Run another container with the new configuration, and now you are allowed to set hostname.
+Run another container with the new configuration, and now you will be allowed to set the hostname.
 
 ```
 $ sudo runc run xyxy67
@@ -109,7 +109,7 @@ Start another process in `xyxy78` but with additional CAP_SYS_ADMIN capability, 
 sudo runc exec --cap CAP_SYS_ADMIN xyxy78 /bin/hostname cool
 ```
 
-Under the hood of `--cap` option, it is to set up the capability list for the process that will be exec-ed, just as set up those things for in the `config.json` for the init process.
+Under the hood, the `--cap` option sets up the capability list for the process that will be executed, similar to how these settings are established in the `config.json` for the init process.
 
 ## capsh
 
@@ -132,7 +132,7 @@ gid=0(root)
 groups=
 ```
 
-This is the output with added `CAP_SYS_ADMIN` capability. Compared with former one, we can see additional `cap_sys_admin+ep` in the "Current" and `ap_sys_admin` in the "Bounding Set". The "+ep" means the preceding capabilities are in both "effective" and "permitted" list. For more information regarding the capability list, see [capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html).
+This is the output with the added `CAP_SYS_ADMIN` capability. Compared with the previous one, we can see an additional `cap_sys_admin+ep` in the "Current" section and `cap_sys_admin` in the "Bounding Set". The "+ep" indicates that the preceding capabilities are in both the "effective" and "permitted" lists. For more information regarding the capability list, see [capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html).
 
 ```
 # capsh --print
@@ -149,5 +149,4 @@ groups=
 
 ## Summary
 
-We see how Linux capability is used to limit the things a process can do and thus increase the security of the container.
-
+We investigated how Linux capability is used to limit the things a process can do and thus increase the security of the container.

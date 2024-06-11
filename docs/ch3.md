@@ -1,12 +1,12 @@
 # CGroups
 
-Namespaces control what the processes inside of the containers can *see*, cgroup controls *how much* resources they can use. Namespace is about isolation, cgroup is about "budget" control.
+While namespaces control what the processes inside the containers can *see*, cgroups control *how much* resources they can use. Namespaces are about isolation, while cgroups are about resource "budget" control.
 
-Follow the same methodology as we did when walking through the namespaces usage in container, we'll create/run a container first, then run a new a process in the container and see how the cgroup in the host system changes; and then we see how to config the cgroup, firstly manually manipulating the host cgroup files and then using the runc config files and docker cli command.
+Following the same methodology as we did when walking through the usage of namespaces in a container, we'll first create and run a container. Then, we'll run a new process in the container and observe how the cgroup in the host system changes. After that, we'll explore how to configure the cgroup, first by manually manipulating the host cgroup files, and then using the runc config files and Docker CLI commands.
 
 ## Create cgroup
 
-Take a snapshot of the cgroups before creating a container using the following command. `lscgroup` is command line tool that lists all the cgroup currently in the system, simply by walk `/sys/fs/cgroup/`.
+Before creating a container, take a snapshot of the cgroups using the following command. `lscgroup` is a command-line tool that lists all the cgroups currently in the system, simply by walking through `/sys/fs/cgroup/`.
 
 ```
 lscgroup | tee cgroup.b
@@ -38,7 +38,7 @@ $ diff cgroup.b cgroup.a
 > pids:/xyxy12
 ```
 
-As we can see, for each cgroup type, a new cgroup `xyxy12` is created, underneath its parent's cgroup, which is the cgroups of the `bash` in which we issued the `runc run` command.
+As we can see, for each cgroup type, a new cgroup `xyxy12` is created under its parent cgroup. The parent cgroup is the cgroup of the `bash` session in which we issued the `runc run` command.
 
 ## Who is under control?
 
@@ -61,14 +61,13 @@ $ cat /sys/fs/cgroup/cpu/user/1000.user/c2.session/xyxy12/tasks
 23472
 ```
 
-Ok. It is clear that the container's init process is put into the newly created cgroups dedicated for that container.
-And, to make the description complete, to find out the cgroups a process is in, just cat `/proc/<pid>/cgroup`.
+Okay, it's clear that the container's `init` process is placed into the newly created cgroups dedicated to that container. To complete the description, you can find out which cgroups a process is in by using the command `cat /proc/<pid>/cgroup`.
 
-We are pretty happy with what we have found, but still, want to see how the new processes started in the container related to the container.
+We're quite satisfied with what we've discovered, but we still want to understand how new processes started in the container relate to the container itself.
 
 ## Join cgroup
 
-start a new process inside of the container xyxy12.
+Start a new process inside the container `xyxy12`.
 
 ```
 sudo runc exec xyxy12 /bin/top -b
@@ -105,24 +104,24 @@ $ cat /sys/fs/cgroup/cpu/user/1000.user/c2.session/xyxy12/tasks
 32123
 ```
 
-All right, it means the new process will be added to the cgroups created in the first container run.
+Alright, this means that the new process will be added to the cgroups created during the first container run.
 
-To summary, when a container is created, a new cgroup group will be created for each type of the resources and all the processes running in the container will be put into that group (for each type). Hence the resources the processes in the container can be controlled through those cgroups.
+In summary, when a container is created, a new cgroup will be created for each type of resource, and all the processes running in the container will be placed into these groups. Therefore, the resources that the processes in the container can use can be controlled through these cgroups.
 
 ## Config cgroups
 
 ### Hard way
 
-We know now when the cgroups are created and what and how processes are put into each groups. Finally, it is time to see actually how to use the cgroup to put some constraints on the processes. Memory constraint/cgroup is the easiest to understand, and we'll use that as an example.
+We now understand when the cgroups are created, and how processes are assigned to each group. Finally, it's time to see how to actually use the cgroup to impose constraints on the processes. The memory constraint/cgroup is the easiest to understand, so we'll use that as an example.
 
-However, if you check the memory cgroup configuration for the xyxy12, it is isn't set at all. I don't know where 9223372036854771712 is come from but that's for sure not a useful limitation.
+However, if you check the memory cgroup configuration for `xyxy12`, it isn't set at all. I'm not sure where 9223372036854771712 comes from, but it's certainly not a useful limitation.
 
 ```
 cat /sys/fs/cgroup/memory/user/1000.user/c2.session/xyxy12/memory.limit_in_bytes
 9223372036854771712
 ```
 
-To config a limit is as easy as writing a sysfs file.
+To config a limit is as easy as writing a `sysfs` file.
 
 ```
 # requires root
@@ -134,9 +133,9 @@ With this setting in place, any processes in the container won't be able to use 
 
 ### Easy way
 
-You are not supposed to config the cgroup that way (but it is what happens under the hood).
+You are not supposed to configure the cgroup in this way, although this is what happens under the hood.
 
-For runc, it can be easily set in the `config.json`. Adding the following config snippet in [linux.resources](https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#control-groups) section, you are limit all the processes lunching in a container with max 100M memory.
+For `runc`, it can be easily set in the `config.json` file. By adding the following configuration snippet in the [linux.resources](https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#control-groups) section, you can limit all the processes launched in a container to a maximum of 100M memory.
 
 ```
 "memory": {
@@ -145,7 +144,8 @@ For runc, it can be easily set in the `config.json`. Adding the following config
 }
 ```
 
-Under the the hood, the runc will write the file for you. And it can be revealed by changing the value from 100000000 to 100000, which will cause an error:
+
+Under the hood, `runc` will write the file for you. This can be demonstrated by changing the value from 100000000 to 100000, which will cause an error:
 
 ```
 container_linux.go:348: starting container process caused "process_linux.go:402:
@@ -153,14 +153,12 @@ container init caused \"process_linux.go:367: setting cgroup config for procHook
 process caused \\\"failed to write 100000 to memory.limit_in_bytes: write /sys/fs/cgroup/memory/user/1000.user/c2.session/xyxy12/memory.limit_in_bytes:
 device or resource busy\\\"\""
 ```
-
-If you use docker, the memory limit can be specified in the docker run command, with the `--memory` option, which will be converted to a config file passing to runc, and which will write corresponding sys fs file.
+If you use Docker, the memory limit can be specified in the `docker run` command using the `--memory` option. This option will be converted into a configuration file that is passed to `runc`, which will then write the corresponding sysfs file.
 
 ## Summary
 
-We'll walk through how Linux cgroup is used in container.
+We walked through how Linux cgroups are used in containers.
 
-- a new cgroup will be created for a new container
-- exec a new process in a running container will join the created new cgroups
-- config the cgroup properly so that the processes in the container are controlled.
-
+- A new cgroup will be created for each new container.
+- Executing a new process in a running container will join the newly created cgroups.
+- Configuring the cgroup properly ensures that the processes in the container are controlled.

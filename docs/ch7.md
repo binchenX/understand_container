@@ -1,14 +1,14 @@
 # Network
 
-When it comes to the container network, the oci runtime spec does no more than creating or joining a [network namespace](http://man7.org/linux/man-pages/man7/network_namespaces.7.html). All the other workers are left to be dealt with by using [hooks](https://github.com/opencontainers/runtime-spec/blob/master/config.md#posix-platform-hooks), which lets you inject into different [stages](https://github.com/opencontainers/runtime-spec/blob/master/runtime.md#lifecycle) of the container runtime and do some customization.
+When it comes to container networking, the OCI runtime spec does nothing more than creating or joining a [network namespace](http://man7.org/linux/man-pages/man7/network_namespaces.7.html). All other tasks are left to be handled using [hooks](https://github.com/opencontainers/runtime-spec/blob/master/config.md#posix-platform-hooks), which allow you to inject into different [stages](https://github.com/opencontainers/runtime-spec/blob/master/runtime.md#lifecycle) of the container runtime and perform some customization.
 
-With the default `config.json`, you will see only a `loop device`, but not an `eth0` that you normally see on the host that allows you talk to the outside world. But, we can set up a simple bridge network by using `netns` as the hook.
+With the default `config.json`, you will only see a `loop device`, not an `eth0` that you normally see on the host, which allows you to communicate with the outside world. However, we can set up a simple bridge network using `netns` as the hook.
 
-Go and get [netns](https://github.com/genuinetools/netns) and copy the binary to `/usr/local/bin`, where the following config.json assume. Worth to note that the hooks are executed in the runtime namespace, not the container namespace. That means, among other things, the hooks binary should reside in the host system, not the container. Hence, you don't need to put the netns into the container rootfs.
+Download [netns](https://github.com/genuinetools/netns) and copy the binary to `/usr/local/bin`, as assumed by the following `config.json`. It's worth noting that the hooks are executed in the runtime namespace, not the container namespace. This means, among other things, that the hooks binary should reside on the host system, not in the container. Therefore, you don't need to put `netns` into the container rootfs.
 
 ## Setup bridge network using netns
 
-Make the following change to `config.json`. In addition to the hooks, we also need `CAP_NET_RAW` capability so that we can use `ping` inside of the container to do some basic network checking.
+Make the following changes to `config.json`. In addition to the hooks, we also need the `CAP_NET_RAW` capability so that we can use `ping` inside the container for basic network checks.
 
 ```
 binchen@m:~/container/runc$ git diff
@@ -100,15 +100,15 @@ Notes: 216.58.199.68 is one IP of google.com. If we had set up the DNS namesever
 
 So, how it works?
 
-## Bridge, Veth, Route and iptable/NAT
+## Bridge, Veth, Route, and iptable/NAT
 
-Upon a hook being called, the container runtime will pass the hook the container's [state](https://github.com/opencontainers/runtime-spec/blob/master/runtime.md#state), among other things, the pid of the container (in runtime namespace). The hook, `Netns` in this case, will use that PID to find out the network namespace the container is supposed to be run in. With that PID, the `netns` will do a few things:
+When a hook is called, the container runtime passes the container's [state](https://github.com/opencontainers/runtime-spec/blob/master/runtime.md#state) to the hook. This includes the PID of the container (in the runtime namespace). The hook, `Netns` in this case, uses this PID to determine the network namespace in which the container is supposed to run. With this PID, `netns` performs a few tasks:
 
-1) Create a Linux [bridge](https://wiki.archlinux.org/index.php/Network_bridge) with the default name `netns0`(if there isn't already one). Also, set up the MASQUERADE rule on the host.
-2) Create a [veth pair](http://man7.org/linux/man-pages/man4/veth.4.html), connecting one endpoint of the pair to the bridge `netns0` and placing another one (renamed to `eth0`) into the container network namespaces.
-3) Allocate and assign an IP to the container interface (`eth0`) and set up the Route table for the container.
+1) It creates a Linux [bridge](https://wiki.archlinux.org/index.php/Network_bridge) with the default name `netns0` (if one doesn't already exist). It also sets up the MASQUERADE rule on the host.
+2) It creates a [veth pair](http://man7.org/linux/man-pages/man4/veth.4.html), connects one endpoint of the pair to the bridge `netns0`, and places the other one (renamed to `eth0`) into the container's network namespaces.
+3) It allocates and assigns an IP to the container interface (`eth0`) and sets up the Route table for the container.
 
-Soon we'll go over the stuff we mentioned above in detail but let's start another container with the same config.json. Hopefully, it'll make things more clear and interesting than having only one container.
+We'll soon delve into the details of the above-mentioned tasks. But first, let's start another container with the same `config.json`. This should make things clearer and more interesting than having just one container.
 
 - bridge and interfaces
 
@@ -124,7 +124,7 @@ netns0        8000.f2df1fb10980    no        netnsv0-8179
 
 As we explained before `netnsv0-8179` is one endpoint of the veth pair, connecting to the bridge; the other endpoint is inside of the container 8179. Let's find it out.
 
-- vthe pair
+- veth pair
 
 On the host, we can see the peer of `netnsv0-8179` is index `7`
 
@@ -209,7 +209,7 @@ target     prot  opt source               destination
 MASQUERADE  all  --  172.19.0.0/16        anywhere
 ```
 
-## Port forward/DNAT(TODO)
+## Port forward/DNAT
 
 With Ip MASQUERADE, the traffic can goes out from the container to the internet as well as the return traffic from the same connection. However, for conatiner to accept incoming connections, you have set up the port forwarding using iptable DNAT target.
 
@@ -269,7 +269,7 @@ So, despite being in different containers, they share the same network device, r
 
 ## Summary
 
-We see how to use `netns` as the hook to setup a bridge network for our containers so that the containers can talk to the internet as well as each other. Put it into a diagram, we have setup something like this:
+We've seen how to use `netns` as a hook to set up a bridge network for our containers, enabling them to communicate with the internet and each other. In diagram form, we've set up something like this:
 
 ```
 +---------------------------------------------------------+

@@ -1,6 +1,13 @@
 # Root and User namespaces
 
-`User` and `permission` are the oldest and most basic security mechanism in Linux. Briefly here is how it works: 1) System has a number of users and groups 2) Every file belongs to an owner and a group, 3) Every process belong to a user and one or more groups, 4) lastly, to link 1,2,3 together, every file has a `mode` setting that defines the permissions for three type of processes: owner, group and other.  Note that the kernel knows and cares only about UID and GUID, not user name and group name.
+`User` and `permission` are the oldest and most basic security mechanisms in Linux. Briefly, here's how it works: 
+
+1) The system has a number of users and groups
+2) Every file belongs to an owner and a group
+3) Every process belongs to a user and one or more groups
+4) Lastly, to link 1, 2, and 3 together, every file has a `mode` setting that defines the permissions for three types of processes: owner, group, and others
+
+Note that the kernel knows and cares only about UID and GID, not the user name and group name.
 
 ## Set uid of container processes
 
@@ -16,7 +23,7 @@ diff --git a/config.json b/config.json
 -               },
 ```
 
-start the container and list the user.
+Start the container and list the user.
 
 ```
 $ sudo runc run xyxy12
@@ -100,9 +107,9 @@ index 25a3154..466eae8 100644
                         }
 ```
 
-It is an error when user namespace is enabled but no uid/guid mapping; similar, GUID/GID mapping is useless and will be ignored if user namespace isn't enabled, which effectively is a wrong configuration as well.
+It is an error to enable the user namespace without a UID/GID mapping. Similarly, UID/GID mapping is useless and will be ignored if the user namespace isn't enabled. This effectively results in an incorrect configuration.
 
-start a container with the new config and list the user namespace in the system:
+Start a container with the new configuration and list the user namespaces in the system:
 
 ```
 $ sudo cinf | grep user
@@ -112,9 +119,9 @@ $ sudo cinf | grep user
  4026531837  user  297 0,1,7,101,102,106,107,109,111,113,116,121,125,126,127,1000,65534  /sbin/init
 ```
 
-We can see we have a new user namespace (4026532450) and our new container process (sh) is running inside of it.
+We can see that we have a new user namespace (4026532450) and our new container process (sh) is running within it.
 
-Inside of the container, it is running as uid/guid 0, and is considered to be root.
+Inside the container, it is running as UID/GID 0, which is considered to be root.
 
 ```
 / # id
@@ -129,8 +136,7 @@ UID        PID  PPID  C STIME TTY          TIME CMD
 binchen   4356  4347  0 11:18 pts/0    00:00:00 sh
 ```
 
-That's user namespace and uid/pid mapping in play here: uid 0 inside of the container is the 1000 on the host, a constant offset as specified in the mapping. The offset or mapping can be seen on the host by check the proc as well:
-
+This is where the user namespace and UID/PID mapping come into play: UID 0 inside the container corresponds to UID 1000 on the host, a constant offset as specified in the mapping. You can view the offset or mapping on the host by checking the proc as follows:
 ```
 binchen@m:~/container/runc$ cat /proc/4356/uid_map
          0       1000      32000
@@ -138,9 +144,9 @@ binchen@m:~/container/runc$ cat /proc/4356/uid_map
 
 ### Exercise
 
-Let's do some Exercise to verify the 0 inside of the container is actually 1000 on the host, and ultimately it is 1000 that is checked by the kernel.
+Let's do some exercises to verify that the '0' inside the container is actually '1000' on the host, and ultimately, it's '1000' that the kernel checks.
 
-Inside of the rootfs but on the host, create two directories, bindir and rootdir, which are owned by the current user (id:1000) and root respectively, and are all accessible only by its owner.
+Inside the rootfs but on the host, create two directories, `bindir` and `rootdir`. These should be owned by the current user (id:1000) and root, respectively, and should only be accessible by their respective owners.
 
 Type following commands:
 
@@ -185,13 +191,12 @@ This is a great time to mention that you always have to make sure the rootfs (or
 
 ### Benefit
 
-What's the benefit of using user namespace?
+What are the benefits of using a user namespace?
 
-1. user namespace is useful in case the process [requires](https://opensource.com/article/18/3/just-say-no-root-containers) root to run but you won't want to give it the real root power. (Otherwise, just use a non-zero user id is fines)
+1. A user namespace is useful when a process [requires](https://opensource.com/article/18/3/just-say-no-root-containers) root access to run, but you don't want to grant it full root privileges. (Otherwise, simply using a non-zero user ID would suffice.)
 
-2. when there are multiple users (for different processes) inside of a single container, putting them in different user namespaces allows you monitoring and control multiple instances of the same container.
+2. When there are multiple users (for different processes) within a single container, placing them in different user namespaces allows you to monitor and control multiple instances of the same container.
 
 ## Summary
 
 Don't run your container process as root user; if you have to put it into a separate user namespace.
-

@@ -1,14 +1,14 @@
 # Namespaces
 
-It's safe to say without namespaces, there would be no container.
+As we mentioned earlier, without namespaces, there would be no containers.
 
-This article will not be the description or overview of namespaces in Linux, which you can find at [here](http://man7.org/linux/man-pages/man7/namespaces.7.html) and [here](https://lwn.net/Articles/531114/).
+This article will not provide a description or overview of namespaces in Linux. You can find that information [here](http://man7.org/linux/man-pages/man7/namespaces.7.html) and [here](https://lwn.net/Articles/531114/).
 
-Instead, we'll get our hands dirty and *see* what exactly happens to the namespaces when we use the commonly used container commands so that you appreciate the role namespaces is playing in the container technology.
+Instead, we'll delve into the practical aspects and *see* what exactly happens to the namespaces when we use common container commands. This will help you appreciate the role namespaces play in container technology.
 
-There are several types of namespaces, such as PID namespaces, mount namespaces. In this article we focus on the change of PID namespaces, other namespaces follow similar rules. We'll use [runc](https://github.com/opencontainers/runc) as the container runtime, since it is simple, have a specification, easy to change to experiment stuff and when necessary, I can point you the code. As we have pointed out in previous chapter that docker is using runc as the container runtime and the docker command is quite similar to runc command. So docker users should be able to feel at home we use runc command here.
+There are several types of namespaces, such as PID namespaces and mount namespaces. In this article, we'll focus on the changes in PID namespaces, but other namespaces follow similar rules. We'll use [runc](https://github.com/opencontainers/runc) as the container runtime because it's simple, has a specification, is easy to modify for experimentation, and I can point you to the code when necessary. As we pointed out in the previous chapter, Docker uses runc as the container runtime, and the Docker command is quite similar to the runc command. So, Docker users should feel at home when we use the runc command here.
 
-If you like, follow [here](https://github.com/opencontainers/runc/blob/master/README.md) to install runc and prepare a busybox runtime bundle (or container).
+If you'd like, follow the instructions [here](https://github.com/opencontainers/runc/blob/master/README.md) to install runc and prepare a busybox runtime bundle (or container).
 
 Let's get started.
 
@@ -58,9 +58,9 @@ lrwxrwxrwx 1 root root 0 Apr 26 16:33 user -> user:[4026531837]
 lrwxrwxrwx 1 root root 0 Apr 26 16:33 uts -> uts:[4026532570]
 ```
 
-We have a few files here, each one represents a type of namespaces. PID is the PID namespaces, mnt the mount namespaces. Those files are symlinks pointing to the "real" namespaces the process belongs to, thinking it as a pointer pointing to some namespaces object, which is denoted by `inode` number and it is unique in the host system. If the namespaces symlink of two different process point to same `inode`, they belong to the same namespaces. By default, if no new namespaces are created, they all belong the same "root" or "default" namespace.
+We have a few files here, each one representing a type of namespace. 'PID' represents the PID namespaces, while 'mnt' represents the mount namespaces. These files are symlinks pointing to the "real" namespaces to which the process belongs. Think of them as pointers pointing to some namespace object, denoted by an `inode` number, which is unique in the host system. If the namespace symlinks of two different processes point to the same `inode`, they belong to the same namespace. By default, if no new namespaces are created, they all belong to the same "root" or "default" namespace.
 
-You can also find out the namespaces of `sh` inside of the container but need to use the PID in the container namespaces, that is `1` for the `10123`. It isthe some process but different PID in a different namespaces, that is all PID namespaces are about. Note that it is mandatory that the `/proc` must be setup properly during container creation.
+You can also find out the namespaces of `sh` inside the container, but you need to use the PID in the container namespace, which is `1` for the `10123`. It's the same process but has a different PID in a different namespace. That's what PID namespaces are all about. Note that it is mandatory for the `/proc` to be set up properly during container creation.
 
 ```
 # inside the container
@@ -75,7 +75,7 @@ lrwxrwxrwx    1 root     root    0 Apr 26 06:34 user -> user:[4026531837]
 lrwxrwxrwx    1 root     root    0 Apr 26 06:34 uts -> uts:[4026532570]
 ```
 
-Next, we want to check what processes are in the newly created PID namespaces. Unfortunately, there isn't a place we can find out this information directly but need to go over all the `/proc/<pid>/ns` files and aggregate all the PIDs belongs the same namespaces. Luckily, tool [cinf](https://github.com/mhausenblas/cinf), does exactly that.
+Next, we want to check what processes are in the newly created PID namespace. Unfortunately, there isn't a direct way to find this information. Instead, we need to go over all the `/proc/<pid>/ns` files and aggregate all the PIDs that belong to the same namespace. Luckily, the tool [cinf](https://github.com/mhausenblas/cinf) does exactly that.
 
 ```
 $ sudo cinf -namespace 4026532572
@@ -96,9 +96,9 @@ PID   PPID  NAME CMD  CGROUPS
                      1:cpuset:/xyxy12
 ```
 
-There is only one process at the moment, and that is the "init" program of the container we started, the `sh` program. Ignore the `cgroup` at the moment, we'll talk about it in the late chapter.
+At the moment, there is only one process, which is the "init" program of the container we started, the `sh` program. Ignore the `cgroup` for now; we'll discuss it in a later chapter.
 
-Well, we see that when a new container is created, a bunch of new namespaces will be created and the "init" process of the container will be put into those namespaces. Effectively the process is running in a container, and that mean different things for different namespaces. For PID namespaces, it means all the processes running in the container can see only the processes *in* the same processes namespaces, "pid:[4026532572]", or equivalently "pid:xyxy12". The `sh` process is considered as PID 1 inside of the container, but it is 10123 in the host, and that's PID namespaces in play here. As you can see, we actually can use the container and namespaces interchangeably in this context.
+We can see that when a new container is created, a bunch of new namespaces are also created, and the "init" process of the container is placed into these namespaces. Effectively, the process is running in a container, and this means different things for different namespaces. For PID namespaces, it means that all the processes running in the container can only see the processes *in* the same process namespace, "pid:[4026532572]", or equivalently "pid:xyxy12". The `sh` process is considered as PID 1 inside the container, but it is 10123 on the host, and that's the role of PID namespaces. As you can see, we can actually use the terms 'container' and 'namespaces' interchangeably in this context.
 
 We are clear, hopefully, about what does `docker/runc run` do regarding the namespaces. How about `docker/runc exec`?
 
@@ -118,7 +118,7 @@ From `execsnoop`, we can see the pids - in the runtime namespaces.
  10710  10709 /bin/top -b
 ```
 
-We can use `runc ps`, which will the processes running in a container, and the PIDs listed are in the runtime namespaces, which is what we want. (One interesting difference is execsnoop say the parent of 10710 is 10709, but runc ps says it is 10702, which is the runc exec command, seems makes more sense.)
+We can use `runc ps`, which will the processes running in a container, and the PIDs listed are in the runtime namespaces, which is what we want. (One interesting difference is `execsnoop` say the parent of 10710 is 10709, but `runc ps` says it is 10702, which is the runc exec command, seems makes more sense.)
 
 ```
 $ sudo runc ps xyxy12
@@ -194,9 +194,8 @@ Now we know that `docker/runc exec` actually starts the new process inside of th
 
 ## Summary
 
-When running a container, new namespaces will be created and the `init` process will be started in that namespaces; when running a new process in a container, it will join the namespaces that are created when the container is created.
+When running a container, new namespaces are created and the `init` process is started within these namespaces. When running a new process in a container, it will join the namespaces that were created when the container was initiated.
 
-That's the "normal" case, instead of letting the container creating a namespaces for the container, you can also specify a [path](https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#namespaces) that you want the container or processes to run in.
+In the "normal" case, the container creates its own namespaces. However, you can also specify a [path](https://github.com/opencontainers/runtime-spec/blob/master/config-linux.md#namespaces) for the container or processes to run in, instead of letting the container create its own namespaces.
 
-Now you understand how exactly PID namespaces are used in the container. If you can take an extra step to figure out what is the mount namespaces and how it is used in container, then you understand the core of application containerization.
-
+Now you understand exactly how PID namespaces are used in a container. If you can take an extra step to figure out what the mount namespaces are and how they are used in a container, then you will understand the core of application containerization.
