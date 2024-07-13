@@ -11,5 +11,10 @@ nav:
   - Network: "ch7.md"
   - CNI: "ch8.md"
 
+extra_css:
+  - assets/custom.css
+extra_javascript:
+  - assets/inject-link.js
+
 theme:
   name: material
