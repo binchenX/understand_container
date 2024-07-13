@@ -1,0 +1,18 @@
+.custom-coffee-link-container {
+    position: fixed;
+    top: 10px;
+    /* Adjust as needed for spacing from the top */
+    left: 50%;
+    /* Center horizontally */
+    transform: translateX(-50%);
+    /* Adjust for exact centering */
+    z-index: 1000;
+    /* Ensure it stays on top of other content */
+    background-color: #ffdd00;
+    /* Example background color, change as desired */
+    padding: 10px;
+    border-radius: 5px;
+    /* Optional: adds rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* Optional: adds a slight shadow for depth */
+}
